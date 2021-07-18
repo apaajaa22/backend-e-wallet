@@ -4,8 +4,8 @@ const auth  = require('../middlewares/auth')
 
 // users.patch('/:id',updateUser)
 transaction.delete('/:id',deleteTransaction)
-transaction.get('/:id',detailTransaction)
-transaction.post('/', createTransaction)
+transaction.get('/', auth, detailTransaction)
+transaction.post('/', auth, createTransaction)
 // users.get('/', getUsers)
 
 module.exports = transaction
