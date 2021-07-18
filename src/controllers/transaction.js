@@ -14,6 +14,7 @@ exports.createTransaction = async (req,res) => {
     trxFee: req.body.trxFee
   })
   user.decrement('balance', {by: req.body.deductedBalance})
+  await user.save()
   if(trx){
     return res.json({
       success: true,
