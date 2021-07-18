@@ -3,6 +3,13 @@ const UserModel = require('../model/users')
 const {Op} =require('sequelize')
 
 exports.createTransfer = async (req,res) => {
+  const user = await UserModel.findByPk(req.authUser.id)
+  if(user.balance < req.body.balance){
+    return res.json({
+      success: false,
+      message: `your money is not enough`
+    })
+  }
   const date = new Date()
   if(req.body.balance < 0){
     return res.json({
@@ -11,7 +18,6 @@ exports.createTransfer = async (req,res) => {
     })
   }
   const {phoneRecipient} = req.body
-  const user = await UserModel.findByPk(req.authUser.id)
   const anotherUser = await UserModel.findAll({
     where: {
       phone: {

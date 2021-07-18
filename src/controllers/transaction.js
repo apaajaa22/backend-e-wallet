@@ -5,6 +5,12 @@ const {Op} =require('sequelize')
 exports.createTransaction = async (req,res) => {
   const user = await UserModel.findByPk(req.authUser.id)
   const date = new Date()
+  if(user.balance < req.body.deductedBalance){
+    return res.json({
+      success: false,
+      message: `your money is not enough`
+    })
+  }
   if(req.body.deductedBalance < 0){
     return res.json({
       success: false,
