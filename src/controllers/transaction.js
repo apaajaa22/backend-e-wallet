@@ -5,7 +5,12 @@ const {Op} =require('sequelize')
 exports.createTransaction = async (req,res) => {
   const user = await UserModel.findByPk(req.authUser.id)
   const date = new Date()
-  date.getTime()
+  if(req.body.deductedBalance < 0){
+    return res.json({
+      success: false,
+      message: `money can't be minus`,
+    })
+  }
   const trx = await Transaction.create({
     userId: req.authUser.id,
     noRef: date.getTime(),

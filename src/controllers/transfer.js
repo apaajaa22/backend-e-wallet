@@ -4,7 +4,12 @@ const {Op} =require('sequelize')
 
 exports.createTransfer = async (req,res) => {
   const date = new Date()
-  date.getTime()
+  if(req.body.balance < 0){
+    return res.json({
+      success: false,
+      message: `money can't be minus`,
+    })
+  }
   const {phoneRecipient} = req.body
   const user = await UserModel.findByPk(req.authUser.id)
   const anotherUser = await UserModel.findAll({

@@ -3,7 +3,12 @@ const UserModel = require('../model/users')
 
 exports.createTopUp = async (req,res) => {
   const date = new Date()
-  date.getTime()
+  if(req.body.increaseBalance < 0){
+    return res.json({
+      success: false,
+      message: `money can't be minus`,
+    })
+  }
   const user = await UserModel.findByPk(req.authUser.id)
   const topUp = await TopUpmodel.create({
     userId: req.authUser.id,
