@@ -3,6 +3,7 @@ const {Op} =require('sequelize')
 const jwt = require('jsonwebtoken')
 const bcrypt = require("bcrypt");
 const {APP_URL, APP_KEY, APP_UPLOAD_ROUTE} = process.env
+const { validationResult } = require('express-validator')
 
 exports.createUser = async (req,res) => {
   const user = await UserModel.create(req.body)
@@ -134,6 +135,13 @@ exports.detailUser = async (req,res) => {
 }
 
 exports.register = async (req,res) => {
+  const err = validationResult(req)
+  if (!err.isEmpty()) {
+    return res.json({
+      success: false,
+      message: err.array()[0].msg
+    })
+  }
   req.body.password = await bcrypt.hash(req.body.password, await bcrypt.genSalt())
   const user = await UserModel.create(req.body)
   return res.json({
@@ -145,6 +153,13 @@ exports.register = async (req,res) => {
 
 exports.login = async (req,res) => {
   const {email, password} = req.body
+  const err = validationResult(req)
+  if (!err.isEmpty()) {
+    return res.json({
+      success: false,
+      message: err.array()[0].msg
+    })
+  }
   const user = await UserModel.findAll({
     where: {
       email: {
@@ -160,6 +175,11 @@ exports.login = async (req,res) => {
       success: true,
       message: 'Login success',
       token: token
+    });
+  }else{
+    return res.json({
+      success: false,
+      message: 'username or password false',
     });
   }
 }
