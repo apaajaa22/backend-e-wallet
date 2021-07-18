@@ -3,6 +3,7 @@ const UserModel = require('../model/users')
 const {Op} =require('sequelize')
 
 exports.createTransaction = async (req,res) => {
+  const user = await UserModel.findByPk(req.authUser.id)
   const date = new Date()
   date.getTime()
   const trx = await Transaction.create({
@@ -12,6 +13,7 @@ exports.createTransaction = async (req,res) => {
     description: req.body.description,
     trxFee: req.body.trxFee
   })
+  user.decrement('balance', {by: req.body.deductedBalance})
   if(trx){
     return res.json({
       success: true,
