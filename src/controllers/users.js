@@ -1,11 +1,11 @@
 const UserModel = require('../model/users')
-const {Op} =require('sequelize')
+const { Op } = require('sequelize')
 const jwt = require('jsonwebtoken')
-const bcrypt = require("bcrypt");
-const {APP_URL, APP_KEY, APP_UPLOAD_ROUTE} = process.env
+const bcrypt = require('bcrypt')
+const { APP_URL, APP_KEY, APP_UPLOAD_ROUTE } = process.env
 const { validationResult } = require('express-validator')
 
-exports.createUser = async (req,res) => {
+exports.createUser = async (req, res) => {
   const user = await UserModel.create(req.body)
   return res.json({
     success: true,
@@ -16,11 +16,11 @@ exports.createUser = async (req,res) => {
 
 exports.updateUser = async (req, res) => {
   const user = await UserModel.findByPk(req.authUser.id)
-  if(user){
-    if(req.file){
+  if (user) {
+    if (req.file) {
       req.body.picture = req.file
-      ? `${APP_UPLOAD_ROUTE}/${req.file.filename}`
-      : null
+        ? `${APP_UPLOAD_ROUTE}/${req.file.filename}`
+        : null
       user.set(req.body)
       await user.save()
       if (
@@ -34,7 +34,7 @@ exports.updateUser = async (req, res) => {
         message: 'User Updated Successfully',
         results: user
       })
-    }else{
+    } else {
       user.set(req.body)
       await user.save()
       if (
@@ -49,16 +49,16 @@ exports.updateUser = async (req, res) => {
         results: user
       })
     }
-  }else {
+  } else {
     res.json({
       success: false,
-      message: 'User not found',
+      message: 'User not found'
     })
   }
 }
 
-exports.deleteUser = async (req,res) => {
-  const {id} = req.params
+exports.deleteUser = async (req, res) => {
+  const { id } = req.params
   const user = await UserModel.findByPk(id)
   await user.destroy()
   return res.json({
@@ -69,24 +69,27 @@ exports.deleteUser = async (req,res) => {
 }
 
 exports.getUsers = async (req, res) => {
-  let {search = '', sort, limit=5, page=1} = req.query
-  let order = []
-  if(typeof sort === 'object'){
+  let { search = '', sort, limit = 5, page = 1 } = req.query
+  const order = []
+  if (typeof sort === 'object') {
     const key = Object.keys(sort)[0]
     let value = sort[key]
-    if(value === '1'){
+    if (value === '1') {
       value = 'DESC'
-    }else{
+    } else {
       value = 'ASC'
     }
     order.push([key, value])
   }
-  if(typeof limit === 'string'){
+  if (typeof limit === 'string') {
     limit = parseInt(limit)
   }
-  if(typeof page === 'string'){
+  if (typeof page === 'string') {
     page = parseInt(page)
   }
+  const count = await UserModel.count()
+  const nextPage = page < Math.ceil(count / limit) ? `${APP_URL}/users/allUser?page=${page + 1}` : null
+  const prevPage = page > 1 ? `${APP_URL}/users/allUser?page=${page - 1}` : null
   const user = await UserModel.findAll({
     where: {
       name: {
@@ -97,7 +100,6 @@ exports.getUsers = async (req, res) => {
     limit,
     offset: (page - 1) * limit
   })
-  const count = await UserModel.count()
   user.forEach((pic, index) => {
     if (
       user[index].picture !== null &&
@@ -111,15 +113,15 @@ exports.getUsers = async (req, res) => {
     message: 'list users',
     results: user,
     pageInfo: {
-      totalPage: Math.ceil(count/limit),
+      totalPage: Math.ceil(count / limit),
       currentPage: page,
-      nextLink: null,
-      prevLink: null
+      nextLink: nextPage,
+      prevLink: prevPage
     }
   })
 }
 
-exports.detailUser = async (req,res) => {
+exports.detailUser = async (req, res) => {
   const user = await UserModel.findByPk(req.authUser.id)
   if (
     user.picture !== null &&
@@ -127,14 +129,14 @@ exports.detailUser = async (req,res) => {
   ) {
     user.picture = `${APP_URL}${user.picture}`
   }
-    return res.json({
-      success: true,
-      message: 'detail user',
-      results: user
-    })
+  return res.json({
+    success: true,
+    message: 'detail user',
+    results: user
+  })
 }
 
-exports.register = async (req,res) => {
+exports.register = async (req, res) => {
   const err = validationResult(req)
   if (!err.isEmpty()) {
     return res.json({
@@ -151,8 +153,8 @@ exports.register = async (req,res) => {
   })
 }
 
-exports.login = async (req,res) => {
-  const {email, password} = req.body
+exports.login = async (req, res) => {
+  const { email, password } = req.body
   const err = validationResult(req)
   if (!err.isEmpty()) {
     return res.json({
@@ -160,26 +162,30 @@ exports.login = async (req,res) => {
       message: err.array()[0].msg
     })
   }
-  const user = await UserModel.findAll({
-    where: {
-      email: {
-        [Op.substring]: email
-      }
-    }
+  const user = await UserModel.findOne({
+    where: { email: email }
   })
-  const results = user[0]
+
+  if (!user) {
+    return res.json({
+      success: false,
+      message: 'user not found'
+    })
+  }
+  const results = user
   const compare = await bcrypt.compare(password, results.password)
-  if(compare){
-    const token = jwt.sign({id: results.id, email: results.email}, APP_KEY, { expiresIn: '2 day' })
+
+  if (compare) {
+    const token = jwt.sign({ id: results.id, email: results.email }, APP_KEY, { expiresIn: '2 day' })
     return res.json({
       success: true,
       message: 'Login success',
       token: token
-    });
-  }else{
+    })
+  } else {
     return res.json({
       success: false,
-      message: 'username or password false',
-    });
+      message: 'username or password false'
+    })
   }
 }

@@ -4,12 +4,13 @@ const UserModel = require('./users')
 
 const Transaction = sequelize.define('transactions', {
   userId: Sequelize.INTEGER,
-  noRef : Sequelize.STRING,
+  noRef: Sequelize.STRING,
+  phoneRecipient: Sequelize.STRING,
   deductedBalance: Sequelize.INTEGER,
   description: Sequelize.STRING,
   trxFee: Sequelize.INTEGER
 })
 
-Transaction.belongsTo(UserModel, {foreignKey: 'userId', sourceKey: 'id', as: 'userDetail'})
+Transaction.belongsTo(UserModel, { foreignKey: 'userId', sourceKey: 'id', as: 'userDetail' })
 
 module.exports = Transaction
