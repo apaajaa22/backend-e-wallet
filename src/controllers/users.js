@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const { APP_URL, APP_KEY, APP_UPLOAD_ROUTE } = process.env
 const { validationResult } = require('express-validator')
+const TokenFCM = require('../model/TokenFCM')
 
 exports.createUser = async (req, res) => {
   const user = await UserModel.create(req.body)
@@ -188,4 +189,23 @@ exports.login = async (req, res) => {
       message: 'username or password false'
     })
   }
+}
+
+exports.registerToken = async (req, res) => {
+  const { token } = req.body
+  const { id } = req.authUser
+  const [fcm, created] = await TokenFCM.findOrCreate({
+    where: { token },
+    defaults: {
+      userId: id
+    }
+  })
+  if (!created) {
+    fcm.userId = id
+    await fcm.save()
+  }
+  return res.json({
+    success: true,
+    message: 'Token saved'
+  })
 }
