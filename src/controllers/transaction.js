@@ -38,7 +38,7 @@ exports.createTransaction = async (req, res) => {
 }
 
 exports.detailTransaction = async (req, res) => {
-  let { search = '', sort, limit = 5, page = 1 } = req.query
+  let { search = '', sort, limit = 6, page = 1 } = req.query
   const order = []
   if (typeof sort === 'object') {
     const key = Object.keys(sort)[0]
@@ -56,7 +56,13 @@ exports.detailTransaction = async (req, res) => {
   if (typeof page === 'string') {
     page = parseInt(page)
   }
-  const count = await Transaction.count()
+  const count = await Transaction.count({
+    where: {
+      userId: {
+        [Op.substring]: req.authUser.id
+      }
+    }
+  })
   const nextPage = page < Math.ceil(count / limit) ? `${APP_URL}/transaction?page=${page + 1}` : null
   const prevPage = page > 1 ? `${APP_URL}/transaction?page=${page - 1}` : null
   const trx = await Transaction.findAll({
@@ -85,6 +91,7 @@ exports.detailTransaction = async (req, res) => {
       message: 'Detail transaction',
       results: trx,
       pageInfo: {
+        totalData: count,
         totalPage: Math.ceil(count / limit),
         currentPage: page,
         nextLink: nextPage,
