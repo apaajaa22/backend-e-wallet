@@ -45,6 +45,7 @@ exports.createTransfer = async (req, res) => {
   await user.save()
   anotherUser.increment('balance', { by: req.body.deductedBalance })
   await anotherUser.save()
+
   firebase.messaging().sendToDevice(anotherUser.token_fcm.token, {
     notification: {
       title: 'OVO',
