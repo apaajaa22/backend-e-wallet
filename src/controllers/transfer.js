@@ -7,7 +7,17 @@ const firebase = require('../helpers/firebase')
 
 exports.createTransfer = async (req, res) => {
   const user = await UserModel.findByPk(req.authUser.id)
+  const { phoneRecipient } = req.body
   const desc = 'transfer balance'
+  const phoneUser = await UserModel.findOne({
+    where: { phone: phoneRecipient }
+  })
+  if (!phoneUser) {
+    return res.status(404).json({
+      success: false,
+      message: 'user not found'
+    })
+  }
   if (user.balance < req.body.balance) {
     return res.json({
       success: false,
@@ -21,12 +31,10 @@ exports.createTransfer = async (req, res) => {
       message: 'money can\'t be minus'
     })
   }
-  const { phoneRecipient } = req.body
   const anotherUser = await UserModel.findOne({
     where: { phone: phoneRecipient },
     include: TokenFCM
   })
-
   if (!anotherUser) {
     return res.status(404).json({
       success: false,

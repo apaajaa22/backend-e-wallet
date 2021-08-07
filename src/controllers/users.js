@@ -17,6 +17,7 @@ exports.createUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   const user = await UserModel.findByPk(req.authUser.id)
+
   if (user) {
     if (req.file) {
       req.body.picture = req.file
@@ -139,19 +140,37 @@ exports.detailUser = async (req, res) => {
 
 exports.register = async (req, res) => {
   const err = validationResult(req)
-  if (!err.isEmpty()) {
-    return res.json({
+  const checkEmail = await UserModel.findOne({
+    where: { email: req.body.email }
+  })
+  const checkPhone = await UserModel.findOne({
+    where: { phone: req.body.phone }
+  })
+  if (checkEmail) {
+    return res.status(401).json({
       success: false,
-      message: err.array()[0].msg
+      message: 'email is already in use'
+    })
+  } else if (checkPhone) {
+    return res.status(401).json({
+      success: false,
+      message: 'phone number is already in use'
+    })
+  } else {
+    if (!err.isEmpty()) {
+      return res.json({
+        success: false,
+        message: err.array()[0].msg
+      })
+    }
+    req.body.password = await bcrypt.hash(req.body.password, await bcrypt.genSalt())
+    const user = await UserModel.create(req.body)
+    return res.json({
+      success: true,
+      message: 'User Created Successfully',
+      results: user
     })
   }
-  req.body.password = await bcrypt.hash(req.body.password, await bcrypt.genSalt())
-  const user = await UserModel.create(req.body)
-  return res.json({
-    success: true,
-    message: 'User Created Successfully',
-    results: user
-  })
 }
 
 exports.login = async (req, res) => {
