@@ -17,7 +17,6 @@ exports.createUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   const user = await UserModel.findByPk(req.authUser.id)
-
   if (user) {
     if (req.file) {
       req.body.picture = req.file
@@ -196,7 +195,7 @@ exports.login = async (req, res) => {
   const compare = await bcrypt.compare(password, results.password)
 
   if (compare) {
-    const token = jwt.sign({ id: results.id, email: results.email }, APP_KEY, { expiresIn: '2 day' })
+    const token = jwt.sign({ id: results.id, email: results.email }, APP_KEY, { expiresIn: '1h' })
     return res.json({
       success: true,
       message: 'Login success',
