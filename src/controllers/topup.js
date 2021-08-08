@@ -6,13 +6,13 @@ exports.createTopUp = async (req, res) => {
   const date = new Date()
   const desc = 'Top up balance'
   if (req.body.increaseBalance < 0) {
-    return res.json({
+    return res.status(500).json({
       success: false,
       message: 'money can\'t be minus'
     })
   }
   if (req.body.increaseBalance < 0) {
-    return res.json({
+    return res.status(500).json({
       success: false,
       message: 'money can\'t be minus'
     })
@@ -27,7 +27,7 @@ exports.createTopUp = async (req, res) => {
   })
   user.increment('balance', { by: req.body.deductedBalance })
   await user.save()
-  return res.json({
+  return res.status(200).json({
     success: true,
     message: 'Top up successfully',
     results: topUp
