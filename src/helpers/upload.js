@@ -28,13 +28,13 @@ const uploadFilter = (req, res, next) => {
   upload(req, res, function (err) {
     if (err instanceof multer.MulterError) {
       // A Multer error occurred when uploading.
-      return res.json({
+      return res.status(400).json({
         success: false,
         message: err.message
       })
     } else if (err) {
       // An unknown error occurred when uploading.
-      return res.json({
+      return res.status(400).json({
         success: false,
         message: err.message
       })

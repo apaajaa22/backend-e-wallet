@@ -86,7 +86,7 @@ exports.detailTransaction = async (req, res) => {
   //   }
   // })
   if (trx) {
-    return res.json({
+    return res.status(200).json({
       success: true,
       message: 'Detail transaction',
       results: trx,
@@ -99,7 +99,7 @@ exports.detailTransaction = async (req, res) => {
       }
     })
   } else {
-    return res.json({
+    return res.status(404).json({
       success: false,
       message: 'Id not found'
     })
@@ -110,7 +110,7 @@ exports.deleteTransaction = async (req, res) => {
   const { id } = req.params
   const trx = await Transaction.findByPk(id)
   await trx.destroy()
-  return res.json({
+  return res.status(200).json({
     success: true,
     message: 'Transaction has been deleted',
     results: trx

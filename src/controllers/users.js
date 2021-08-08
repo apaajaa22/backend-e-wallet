@@ -8,7 +8,7 @@ const TokenFCM = require('../model/TokenFCM')
 
 exports.createUser = async (req, res) => {
   const user = await UserModel.create(req.body)
-  return res.json({
+  return res.status(200).json({
     success: true,
     message: 'User Created Successfully',
     results: user
@@ -30,7 +30,7 @@ exports.updateUser = async (req, res) => {
       ) {
         user.picture = `${APP_URL}${user.picture}`
       }
-      return res.json({
+      return res.status(200).json({
         success: true,
         message: 'User Updated Successfully',
         results: user
@@ -44,14 +44,14 @@ exports.updateUser = async (req, res) => {
       ) {
         user.picture = `${APP_URL}${user.picture}`
       }
-      return res.json({
+      return res.status(200).json({
         success: true,
         message: 'User Updated Successfully',
         results: user
       })
     }
   } else {
-    res.json({
+    res.status(404).json({
       success: false,
       message: 'User not found'
     })
@@ -62,7 +62,7 @@ exports.deleteUser = async (req, res) => {
   const { id } = req.params
   const user = await UserModel.findByPk(id)
   await user.destroy()
-  return res.json({
+  return res.status(200).json({
     success: true,
     message: 'User has been deleted',
     results: user
@@ -109,7 +109,7 @@ exports.getUsers = async (req, res) => {
       user[index].picture = `${APP_URL}${user[index].picture}`
     }
   })
-  return res.json({
+  return res.status(200).json({
     success: true,
     message: 'list users',
     results: user,
@@ -130,7 +130,7 @@ exports.detailUser = async (req, res) => {
   ) {
     user.picture = `${APP_URL}${user.picture}`
   }
-  return res.json({
+  return res.status(200).json({
     success: true,
     message: 'detail user',
     results: user
@@ -157,14 +157,14 @@ exports.register = async (req, res) => {
     })
   } else {
     if (!err.isEmpty()) {
-      return res.json({
+      return res.status(401).json({
         success: false,
         message: err.array()[0].msg
       })
     }
     req.body.password = await bcrypt.hash(req.body.password, await bcrypt.genSalt())
     const user = await UserModel.create(req.body)
-    return res.json({
+    return res.status(200).json({
       success: true,
       message: 'User Created Successfully',
       results: user
@@ -176,7 +176,7 @@ exports.login = async (req, res) => {
   const { email, password } = req.body
   const err = validationResult(req)
   if (!err.isEmpty()) {
-    return res.json({
+    return res.status(400).json({
       success: false,
       message: err.array()[0].msg
     })
@@ -186,7 +186,7 @@ exports.login = async (req, res) => {
   })
 
   if (!user) {
-    return res.json({
+    return res.status(400).json({
       success: false,
       message: 'user not found'
     })
@@ -196,13 +196,13 @@ exports.login = async (req, res) => {
 
   if (compare) {
     const token = jwt.sign({ id: results.id, email: results.email }, APP_KEY, { expiresIn: '1h' })
-    return res.json({
+    return res.status(200).json({
       success: true,
       message: 'Login success',
       token: token
     })
   } else {
-    return res.json({
+    return res.status(400).json({
       success: false,
       message: 'username or password false'
     })
@@ -222,7 +222,7 @@ exports.registerToken = async (req, res) => {
     fcm.userId = id
     await fcm.save()
   }
-  return res.json({
+  return res.status(200).json({
     success: true,
     message: 'Token saved'
   })

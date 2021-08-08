@@ -19,14 +19,14 @@ exports.createTransfer = async (req, res) => {
     })
   }
   if (user.balance < req.body.balance) {
-    return res.json({
+    return res.status(500).json({
       success: false,
       message: 'your money is not enough'
     })
   }
   const date = new Date()
   if (req.body.balance < 0) {
-    return res.json({
+    return res.status(500).json({
       success: false,
       message: 'money can\'t be minus'
     })
@@ -60,7 +60,7 @@ exports.createTransfer = async (req, res) => {
       body: `${user.phone} transfer balance sebesar ${Number(req.body.deductedBalance).toLocaleString('en')} melalui aplikasi OVO`
     }
   })
-  return res.json({
+  return res.status(200).json({
     success: true,
     message: 'Transfer successfully',
     results: transfer
