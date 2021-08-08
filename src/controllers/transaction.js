@@ -23,6 +23,7 @@ exports.createTransaction = async (req, res) => {
     userId: req.authUser.id,
     noRef: date.getTime(),
     deductedBalance: req.body.deductedBalance,
+    phoneRecipient: '',
     description: pulsa,
     trxFee: req.body.trxFee
   })
