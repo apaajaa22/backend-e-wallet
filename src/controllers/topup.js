@@ -24,7 +24,7 @@ exports.createTopUp = async (req, res) => {
       userId: req.authUser.id,
       noRef: date.getTime(),
       deductedBalance: req.body.deductedBalance,
-      phoneRecipient: null,
+      phoneRecipient: '',
       description: desc,
       trxFee: req.body.trxFee
     })
