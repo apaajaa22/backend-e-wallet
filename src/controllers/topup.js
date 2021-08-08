@@ -19,6 +19,7 @@ exports.createTopUp = async (req, res) => {
   }
   try {
     const user = await UserModel.findByPk(req.authUser.id)
+    console.log(user)
     const topUp = await Transaction.create({
       userId: req.authUser.id,
       noRef: date.getTime(),
@@ -36,7 +37,7 @@ exports.createTopUp = async (req, res) => {
   } catch (err) {
     return res.status(404).json({
       success: false,
-      message: 'user not found'
+      message: err
     })
   }
 }
