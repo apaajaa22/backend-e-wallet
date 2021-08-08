@@ -55,8 +55,7 @@ exports.changePassword = async (req, res) => {
       } else {
         return res.status(400).json({
           success: false,
-          message: 'Change password failed',
-          results: user.email
+          message: 'old password false'
         })
       }
     } else {
