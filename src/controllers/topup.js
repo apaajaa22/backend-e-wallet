@@ -17,19 +17,26 @@ exports.createTopUp = async (req, res) => {
       message: 'money can\'t be minus'
     })
   }
-  const user = await UserModel.findByPk(req.authUser.id)
-  const topUp = await Transaction.create({
-    userId: req.authUser.id,
-    noRef: date.getTime(),
-    deductedBalance: req.body.deductedBalance,
-    description: desc,
-    trxFee: req.body.trxFee
-  })
-  user.increment('balance', { by: req.body.deductedBalance })
-  await user.save()
-  return res.status(200).json({
-    success: true,
-    message: 'Top up successfully',
-    results: topUp
-  })
+  try {
+    const user = await UserModel.findByPk(req.authUser.id)
+    const topUp = await Transaction.create({
+      userId: req.authUser.id,
+      noRef: date.getTime(),
+      deductedBalance: req.body.deductedBalance,
+      description: desc,
+      trxFee: req.body.trxFee
+    })
+    user.increment('balance', { by: req.body.deductedBalance })
+    await user.save()
+    return res.status(200).json({
+      success: true,
+      message: 'Top up successfully',
+      results: topUp
+    })
+  } catch (err) {
+    return res.status(404).json({
+      success: false,
+      message: 'user not found'
+    })
+  }
 }
