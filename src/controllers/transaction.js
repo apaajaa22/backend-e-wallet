@@ -8,13 +8,13 @@ exports.createTransaction = async (req, res) => {
   const date = new Date()
   const pulsa = 'Pulsa'
   if (user.balance < req.body.deductedBalance) {
-    return res.json({
+    return res.status(500).json({
       success: false,
       message: 'your money is not enough'
     })
   }
   if (req.body.deductedBalance < 0) {
-    return res.json({
+    return res.status(500).json({
       success: false,
       message: 'money can\'t be minus'
     })
@@ -29,7 +29,7 @@ exports.createTransaction = async (req, res) => {
   user.decrement('balance', { by: req.body.deductedBalance })
   await user.save()
   if (trx) {
-    return res.json({
+    return res.status(200).json({
       success: true,
       message: 'Transaction Successfully',
       results: trx
