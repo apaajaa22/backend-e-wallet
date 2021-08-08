@@ -15,6 +15,64 @@ exports.createUser = async (req, res) => {
   })
 }
 
+exports.changePassword = async (req, res) => {
+  const user = await UserModel.findByPk(req.authUser.id)
+  const checkOldPassword = await UserModel.findAll({
+    where: {
+      password: {
+        [Op.substring]: req.body.oldPassword
+      },
+      id: {
+        [Op.substring]: req.authUser.id
+      }
+    }
+  })
+  const check = await UserModel.findOne({
+    where: { email: user.email }
+  })
+  console.log(user.email)
+  const results = check
+  const compare = await bcrypt.compare(req.body.oldPassword, results.password)
+  if (user) {
+    if (checkOldPassword) {
+      if (compare) {
+        try {
+          req.body.password = await bcrypt.hash(req.body.password, await bcrypt.genSalt())
+          user.set(req.body)
+          await user.save()
+          return res.status(200).json({
+            success: true,
+            message: 'Change password success',
+            results: user
+          })
+        } catch (err) {
+          return res.status(400).json({
+            success: false,
+            message: 'Change password failed',
+            results: err
+          })
+        }
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: 'Change password failed',
+          results: user.email
+        })
+      }
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: 'Old Password false'
+      })
+    }
+  } else {
+    return res.status(404).json({
+      success: false,
+      message: 'User not found'
+    })
+  }
+}
+
 exports.updateUser = async (req, res) => {
   const user = await UserModel.findByPk(req.authUser.id)
   if (user) {
