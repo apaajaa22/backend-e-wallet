@@ -11,6 +11,12 @@ app.use(express.urlencoded({ extended: false }))
 app.use(cors())
 app.use(APP_UPLOAD_ROUTE, express.static(APP_UPLOAD_PATH))
 app.use('/', router)
+app.get('/', (req, res) => {
+  return res.json({
+    success: true,
+    message: 'Backend is running well'
+  })
+})
 
 app.listen(PORT, () => {
   console.log(`APP running on port ${PORT}`)

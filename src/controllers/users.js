@@ -154,6 +154,7 @@ exports.getUsers = async (req, res) => {
         [Op.substring]: search
       }
     },
+    attributes: { exclude: ['password'] },
     order,
     limit,
     offset: (page - 1) * limit
