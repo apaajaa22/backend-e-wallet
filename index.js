@@ -14,7 +14,7 @@ app.use('/', router)
 app.get('/', (req, res) => {
   return res.json({
     success: true,
-    message: 'Backend is running well'
+    message: 'Backend is running'
   })
 })
 
